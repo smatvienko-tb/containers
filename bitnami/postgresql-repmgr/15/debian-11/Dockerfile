@@ -19,7 +19,8 @@ ENV HOME="/" \
 COPY prebuildfs /
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # Install required system packages and dependencies
-RUN install_packages ca-certificates curl libbsd0 libedit2 libffi7 libgcc-s1 libgmp10 libgnutls30 libhogweed6 libicu67 libidn2-0 libldap-2.4-2 liblz4-1 liblzma5 libmd0 libnettle8 libp11-kit0 libpcre3 libreadline8 libsasl2-2 libsqlite3-0 libssl1.1 libstdc++6 libtasn1-6 libtinfo6 libunistring2 libuuid1 libxml2 libxslt1.1 locales procps zlib1g
+RUN install_packages ca-certificates curl libbsd0 libedit2 libffi7 libgcc-s1 libgmp10 libgnutls30 libhogweed6 libicu67 libidn2-0 libldap-2.4-2 liblz4-1 liblzma5 libmd0 libnettle8 libp11-kit0 libpcre3 libreadline8 libsasl2-2 libsqlite3-0 libssl1.1 libstdc++6 libtasn1-6 libtinfo6 libunistring2 libuuid1 libxml2 libxslt1.1 locales procps zlib1g \
+    clang llvm
 RUN mkdir -p /tmp/bitnami/pkg/cache/ && cd /tmp/bitnami/pkg/cache/ && \
     COMPONENTS=( \
       "postgresql-repmgr-15.1.0-6-linux-${OS_ARCH}-debian-11" \
@@ -34,6 +35,15 @@ RUN mkdir -p /tmp/bitnami/pkg/cache/ && cd /tmp/bitnami/pkg/cache/ && \
       tar -zxf "${COMPONENT}.tar.gz" -C /opt/bitnami --strip-components=2 --no-same-owner --wildcards '*/files' && \
       rm -rf "${COMPONENT}".tar.gz{,.sha256} ; \
     done
+
+COPY common.tar.gz /tmp
+RUN tar -zxf /tmp/common.tar.gz -C /opt/bitnami && \
+    rm -rf /tmp/common.tar.gz
+
+COPY postgresql.tar.gz /tmp
+RUN tar -zxf /tmp/postgresql.tar.gz -C /opt/bitnami && \
+    rm -rf /tmp/postgresql.tar.gz
+
 RUN apt-get autoremove --purge -y curl && \
     apt-get update && apt-get upgrade -y && \
     apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
